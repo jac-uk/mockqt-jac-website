@@ -147,35 +147,14 @@
       function handleContinueClick() {
         if (!checkboxValues.length && !radioValue) return;
 
-        // send data to Google spreadsheet
-        let url = 'https://script.google.com/macros/s/AKfycbxSkSUnHGdIoewMTsXRRowzSwvMqHpudYemKl_6lP1H77wAbUE/exec';
+        // clear checkboxes and radio
+        $checkboxes.forEach($checkbox => {
+          $checkbox.checked = false
+        });
+        $radioNone.checked = false;
+        $radioPreferNotToSay.checked = false;
 
-        let datetime = getFormattedDate(new Date());
-        let ethnicity = ''
-        if (checkboxValues.length) {
-          ethnicity += checkboxValues.join(',');
-        } else if (radioValue) {
-          ethnicity += radioValue;
-        }
-        let data = [
-          { key: 'datetime', value: datetime },
-          { key: 'ethnicity', value: ethnicity }
-        ];
-        url += data.reduce((prev, cur) => `${prev}&${cur.key}=${cur.value}`, '?');
-
-        fetch(url)
-          .then(res => res.text())
-          .catch(error => console.error(error))
-          .finally(() => {
-            // clear checkboxes and radio
-            $checkboxes.forEach($checkbox => {
-              $checkbox.checked = false
-            });
-            $radioNone.checked = false;
-            $radioPreferNotToSay.checked = false;
-
-            window.location.href = './starting-sj.html';
-          });
+        window.location.href = './starting-sj.html';
       }
 
       $checkboxes.forEach($checkbox => {

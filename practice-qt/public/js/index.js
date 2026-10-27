@@ -3,19 +3,31 @@ var updateIframeHeight = "true";
 var hide_page_until_loaded_external = "true";
 var scroll_to_top = "#totop";
 var usePostMessage = true;
+var jquery_path = "./js/jquery.js";
 // var debugPostMessage = true;
 var resize_on_element_resize = "body";
 var resize_on_element_resize_delay = 0;
 var enable_responsive_iframe = "true";
 
-loadScript("./js/jquery.js");
-loadScript("./js/ai_external.js");
-loadScript("./govuk-frontend/govuk-frontend-4.0.0.min.js");
+loadScript(jquery_path)
+  .then(() => {
+    if (typeof window.jQuery !== 'function') {
+      throw new Error(`Failed to initialise jQuery from ${jquery_path}`);
+    }
+    return loadScript("./js/ai_external.js");
+  })
+  .catch(error => console.error(error));
+loadScript("./govuk-frontend/govuk-frontend-4.0.0.min.js")
+  .catch(error => console.error(error));
 
 function loadScript(url) {
-  let script = document.createElement('script'); // create a script DOM node
-  script.src = url; // set its src to the provided URL
-  document.head.appendChild(script); // add it to the end of the head section of the page (could change 'head' to 'body' to add it to the end of the body section instead)
+  return new Promise((resolve, reject) => {
+    let script = document.createElement('script');
+    script.src = url;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
+    document.head.appendChild(script);
+  });
 }
 
 function getUrlParameter(name) {
@@ -29,22 +41,6 @@ function updateScoreHTML() {
   let score = getUrlParameter('score');
   score = score ? score : 0;
   document.querySelector('.score').innerHTML = score;
-}
-
-// format: DD/MM/YY hh:mm:ss
-function getFormattedDate(date) {
-  let year = date.getFullYear(),
-      month = (date.getMonth() + 1).toString(),
-      formattedMonth = (month.length === 1) ? ('0' + month) : month,
-      day = date.getDate().toString(),
-      formattedDay = (day.length === 1) ? ('0' + day) : day,
-      hour = date.getHours().toString(),
-      formattedHour = (hour.length === 1) ? ('0' + hour) : hour,
-      minute = date.getMinutes().toString(),
-      formattedMinute = (minute.length === 1) ? ('0' + minute) : minute,
-      second = date.getSeconds().toString(),
-      formattedSecond = (second.length === 1) ? ('0' + second) : second;
-  return formattedDay + '/' + formattedMonth + '/' + year + ' ' + formattedHour + ':' + formattedMinute + ':' + formattedSecond;
 }
 
 // format: hh:mm:ss
